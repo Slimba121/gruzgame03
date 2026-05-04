@@ -11,7 +11,7 @@ const config = createConfig({
   connectors: [
     injected(),
     baseAccount({
-      appName: "GruzGame 03",
+      appName: "Betches Tapper",
     }),
   ],
   storage: createStorage({ storage: cookieStorage }),

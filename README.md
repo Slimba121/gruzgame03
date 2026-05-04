@@ -1,4 +1,4 @@
-# GruzGame 03
+# Betches Tapper
 
 Urban mini game for Base App:
 - tap the heroine to gain score,

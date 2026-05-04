@@ -298,7 +298,7 @@ export default function Home() {
       <div className={styles.pipesLayer} />
 
       <section className={styles.card}>
-        <h1 className={styles.title}>GRUZ GAME 03</h1>
+        <h1 className={styles.title}>BETCHES TAPPER</h1>
         {!isConnected || !address ? (
           <p className={styles.warning}>Открой игру в Base App для авто-подключения кошелька.</p>
         ) : !isCorrectChain ? (
