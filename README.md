@@ -36,7 +36,7 @@ Create `.env.local`:
 
 ```bash
 NEXT_PUBLIC_URL=http://localhost:3000
-NEXT_PUBLIC_GRUZGAME03_CONTRACT=0xYourDeployedContractAddress
+NEXT_PUBLIC_GRUZGAME03_CONTRACT=0xd8d1015bF05F07DbfAA4E5F100Bc5A5706652BC6
 ```
 
 ## Run
@@ -54,4 +54,5 @@ App now sends real contract calls (`tap`, `checkIn`) so BaseScan shows interacti
 2. Deploy to Base Mainnet (or Base Sepolia for testing).
 3. Copy deployed address.
 4. Set `NEXT_PUBLIC_GRUZGAME03_CONTRACT` in `.env.local` and Vercel env vars.
+   - Current deployed address: `0xd8d1015bF05F07DbfAA4E5F100Bc5A5706652BC6`
 5. Redeploy.
