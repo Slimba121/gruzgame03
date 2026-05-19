@@ -2,10 +2,15 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMiniApp } from "./providers/MiniAppProvider";
-import { encodeFunctionData } from "viem";
+import { encodeFunctionData, parseEther } from "viem";
 import { base } from "wagmi/chains";
 import { useAccount, useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
-import { getGruzGame03ContractAddress, gruzGame03OnchainAbi } from "@/lib/contracts/gruzgame03Onchain";
+import {
+  GRUZGAME03_CHECKIN_PRICE_ETH,
+  getGruzGame03ContractAddress,
+  gruzGame03OnchainAbi,
+  withGruzGame03BuilderCodeDataSuffix,
+} from "@/lib/contracts/gruzgame03Onchain";
 import styles from "./page.module.css";
 
 type View = "menu" | "tap" | "leaderboard" | "checkin";
@@ -34,7 +39,7 @@ interface PlayerState {
 }
 
 const STORAGE_KEY = "gruzgame03:players";
-const CHECKIN_INTERVAL_SECONDS = 10 * 60;
+const CHECKIN_INTERVAL_SECONDS = 2 * 60;
 
 function shortWallet(wallet: string) {
   if (!wallet) return "";
@@ -80,7 +85,6 @@ export default function Home() {
   const { context } = useMiniApp();
   const { address, isConnected, chainId } = useAccount();
   const contractAddress = getGruzGame03ContractAddress();
-  const hasOnchainContract = Boolean(contractAddress);
   const [view, setView] = useState<View>("menu");
   const [state, setState] = useState<GameState | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
@@ -236,18 +240,16 @@ export default function Home() {
 
   const handleSyncTaps = async () => {
     if (!address || !isCorrectChain || pendingTaps <= 0) return;
-    if (!hasOnchainContract || !contractAddress) {
-      setError("Не задан NEXT_PUBLIC_GRUZGAME03_CONTRACT. Добавь адрес деплоя контракта в env.");
-      return;
-    }
     setError("");
     try {
       setIsSubmittingTap(true);
-      const data = encodeFunctionData({
-        abi: gruzGame03OnchainAbi,
-        functionName: "tap",
-        args: [BigInt(pendingTaps)],
-      });
+      const data = withGruzGame03BuilderCodeDataSuffix(
+        encodeFunctionData({
+          abi: gruzGame03OnchainAbi,
+          functionName: "tap",
+          args: [BigInt(pendingTaps)],
+        })
+      );
       await sendTransactionAsync({
         to: contractAddress,
         data,
@@ -262,21 +264,19 @@ export default function Home() {
 
   const handleCheckin = async () => {
     if (!address || !state?.canCheckinNow) return;
-    if (!hasOnchainContract || !contractAddress) {
-      setError("Не задан NEXT_PUBLIC_GRUZGAME03_CONTRACT. Добавь адрес деплоя контракта в env.");
-      return;
-    }
     setError("");
     try {
       setIsSubmittingCheckin(true);
-      const data = encodeFunctionData({
-        abi: gruzGame03OnchainAbi,
-        functionName: "checkIn",
-      });
+      const data = withGruzGame03BuilderCodeDataSuffix(
+        encodeFunctionData({
+          abi: gruzGame03OnchainAbi,
+          functionName: "checkIn",
+        })
+      );
       await sendTransactionAsync({
         to: contractAddress,
         data,
-        value: BigInt(0),
+        value: parseEther(GRUZGAME03_CHECKIN_PRICE_ETH),
         chainId: base.id,
       });
     } catch (err) {
@@ -328,11 +328,6 @@ export default function Home() {
         </div>
 
         <p className={styles.hint}>Уникальных пользователей с check-in: {checkedUsersCount}</p>
-        {!hasOnchainContract && (
-          <p className={styles.warning}>
-            Для onchain-операций укажи `NEXT_PUBLIC_GRUZGAME03_CONTRACT` (адрес деплоенного контракта).
-          </p>
-        )}
 
         {view === "menu" && (
           <div className={styles.menuButtons}>
@@ -370,8 +365,9 @@ export default function Home() {
         {view === "checkin" && (
           <div className={styles.viewBlock}>
             <p className={styles.checkinText}>
-              Следующее окно check-in: <strong>каждые 10 минут</strong>
+              Следующее окно check-in: <strong>каждые 2 минуты</strong>
             </p>
+            <p className={styles.hint}>Стоимость check-in: {GRUZGAME03_CHECKIN_PRICE_ETH} ETH</p>
             <p className={styles.timer}>{countdown}</p>
             <button
               className={styles.neonButton}
