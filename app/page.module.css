@@ -83,12 +83,36 @@
 .playerLine {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   background: rgba(49, 43, 55, 0.56);
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 14px;
   font-size: 0.9rem;
+}
+
+.walletPanel {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.walletOptions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.disconnectButton {
+  border: 1px solid rgba(255, 217, 141, 0.35);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #ffd98d;
+  background: rgba(15, 18, 28, 0.38);
+  cursor: pointer;
 }
 
 .warning {
